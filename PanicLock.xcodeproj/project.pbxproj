@@ -19,7 +19,6 @@
 		A10000010000000000000010 /* HelperTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000010 /* HelperTool.swift */; };
 		A10000010000000000000011 /* XPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000007 /* XPCProtocol.swift */; };
 		A10000010000000000000012 /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000012 /* LaunchAtLoginManager.swift */; };
-		A10000010000000000000013 /* com.paniclock.helper.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = A10000020000000000000013 /* com.paniclock.helper.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +43,6 @@
 		A10000020000000000000009 /* HelperMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperMain.swift; sourceTree = "<group>"; };
 		A10000020000000000000010 /* HelperTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTool.swift; sourceTree = "<group>"; };
 		A10000020000000000000012 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
-		A10000020000000000000013 /* com.paniclock.helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = com.paniclock.helper.plist; sourceTree = "<group>"; };
 		A10000030000000000000001 /* PanicLock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PanicLock.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000030000000000000002 /* com.paniclock.helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.paniclock.helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000040000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -93,19 +91,10 @@
 				A10000020000000000000006 /* SettingsManager.swift */,
 				A10000020000000000000012 /* LaunchAtLoginManager.swift */,
 				A10000020000000000000008 /* Assets.xcassets */,
-				A10000060000000000000006 /* LaunchDaemons */,
 				A10000040000000000000001 /* Info.plist */,
 				A10000040000000000000002 /* PanicLock.entitlements */,
 			);
 			path = PanicLock;
-			sourceTree = "<group>";
-		};
-		A10000060000000000000006 /* LaunchDaemons */ = {
-			isa = PBXGroup;
-			children = (
-				A10000020000000000000013 /* com.paniclock.helper.plist */,
-			);
-			path = LaunchDaemons;
 			sourceTree = "<group>";
 		};
 		A10000060000000000000003 /* PanicLockHelper */ = {
@@ -148,7 +137,6 @@
 				A10000050000000000000001 /* Frameworks */,
 				A10000080000000000000003 /* Resources */,
 				A10000080000000000000004 /* Copy Helper */,
-				A10000080000000000000005 /* Copy LaunchDaemons */,
 			);
 			buildRules = (
 			);
@@ -246,29 +234,6 @@
 			shellScript = "HELPER_PATH=\"${DSTROOT}/UninstalledProducts/${PLATFORM_NAME}/com.paniclock.helper\"\nif [ ! -f \"$HELPER_PATH\" ]; then\n  HELPER_PATH=\"${BUILT_PRODUCTS_DIR}/com.paniclock.helper\"\nfi\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchServices\"\ncp \"$HELPER_PATH\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchServices/\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		A10000080000000000000005 /* Copy LaunchDaemons */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/PanicLock/LaunchDaemons/com.paniclock.helper.plist",
-			);
-			name = "Copy LaunchDaemons";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/Library/LaunchDaemons/com.paniclock.helper.plist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons\"\ncp \"${SRCROOT}/PanicLock/LaunchDaemons/com.paniclock.helper.plist\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons/\"\n";
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A10000080000000000000001 /* Sources */ = {

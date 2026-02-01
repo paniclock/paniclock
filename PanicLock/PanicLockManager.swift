@@ -51,15 +51,53 @@ class PanicLockManager {
         }
     }
     
+    @available(macOS, deprecated: 13.0, message: "SMJobBless is deprecated but required for privileged helpers")
     private func installHelper() {
-        // Use SMAppService to install the privileged helper (macOS 13+)
-        let service = SMAppService.daemon(plistName: "com.paniclock.helper.plist")
+        // SMJobBless is deprecated but SMAppService doesn't support privileged helpers
+        // that need root access (like running bioutil). Must use SMJobBless.
+        var authRef: AuthorizationRef?
+        let authFlags: AuthorizationFlags = [.interactionAllowed, .preAuthorize, .extendRights]
         
-        do {
-            try service.register()
+        let authItemName = kSMRightBlessPrivilegedHelper
+        
+        var authItem = authItemName.withCString { name in
+            AuthorizationItem(
+                name: name,
+                valueLength: 0,
+                value: nil,
+                flags: 0
+            )
+        }
+        
+        var authRights = withUnsafeMutablePointer(to: &authItem) { pointer in
+            AuthorizationRights(count: 1, items: pointer)
+        }
+        
+        let status = AuthorizationCreate(&authRights, nil, authFlags, &authRef)
+        
+        guard status == errAuthorizationSuccess, let auth = authRef else {
+            print("Authorization failed: \(status)")
+            return
+        }
+        
+        defer {
+            AuthorizationFree(auth, [])
+        }
+        
+        var error: Unmanaged<CFError>?
+        let success = SMJobBless(
+            kSMDomainSystemLaunchd,
+            helperBundleIdentifier as CFString,
+            auth,
+            &error
+        )
+        
+        if !success {
+            if let err = error?.takeRetainedValue() {
+                print("Helper installation failed: \(err)")
+            }
+        } else {
             print("Helper installed successfully")
-        } catch {
-            print("Helper installation failed: \(error)")
         }
     }
     
