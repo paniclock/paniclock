@@ -1,0 +1,532 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000010000000000000001 /* PanicLockApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000001 /* PanicLockApp.swift */; };
+		A10000010000000000000002 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000002 /* MenuBarController.swift */; };
+		A10000010000000000000003 /* PanicLockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000003 /* PanicLockManager.swift */; };
+		A10000010000000000000004 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000004 /* PreferencesView.swift */; };
+		A10000010000000000000005 /* KeyboardShortcutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000005 /* KeyboardShortcutManager.swift */; };
+		A10000010000000000000006 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000006 /* SettingsManager.swift */; };
+		A10000010000000000000007 /* XPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000007 /* XPCProtocol.swift */; };
+		A10000010000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000008 /* Assets.xcassets */; };
+		A10000010000000000000009 /* HelperMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000009 /* HelperMain.swift */; };
+		A10000010000000000000010 /* HelperTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000010 /* HelperTool.swift */; };
+		A10000010000000000000011 /* XPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000007 /* XPCProtocol.swift */; };
+		A10000010000000000000012 /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000012 /* LaunchAtLoginManager.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A10000110000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000070000000000000002;
+			remoteInfo = PanicLockHelper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A10000020000000000000001 /* PanicLockApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicLockApp.swift; sourceTree = "<group>"; };
+		A10000020000000000000002 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		A10000020000000000000003 /* PanicLockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicLockManager.swift; sourceTree = "<group>"; };
+		A10000020000000000000004 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		A10000020000000000000005 /* KeyboardShortcutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutManager.swift; sourceTree = "<group>"; };
+		A10000020000000000000006 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		A10000020000000000000007 /* XPCProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPCProtocol.swift; sourceTree = "<group>"; };
+		A10000020000000000000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10000020000000000000009 /* HelperMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperMain.swift; sourceTree = "<group>"; };
+		A10000020000000000000010 /* HelperTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTool.swift; sourceTree = "<group>"; };
+		A10000020000000000000012 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
+		A10000030000000000000001 /* PanicLock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PanicLock.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000030000000000000002 /* com.paniclock.helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.paniclock.helper; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000040000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A10000040000000000000002 /* PanicLock.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PanicLock.entitlements; sourceTree = "<group>"; };
+		A10000040000000000000003 /* Info-Helper.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Helper.plist"; sourceTree = "<group>"; };
+		A10000040000000000000004 /* Helper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Helper.entitlements; sourceTree = "<group>"; };
+		A10000040000000000000005 /* Launchd.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Launchd.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000050000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000050000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000060000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A10000060000000000000002 /* PanicLock */,
+				A10000060000000000000003 /* PanicLockHelper */,
+				A10000060000000000000004 /* Shared */,
+				A10000060000000000000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000060000000000000002 /* PanicLock */ = {
+			isa = PBXGroup;
+			children = (
+				A10000020000000000000001 /* PanicLockApp.swift */,
+				A10000020000000000000002 /* MenuBarController.swift */,
+				A10000020000000000000003 /* PanicLockManager.swift */,
+				A10000020000000000000004 /* PreferencesView.swift */,
+				A10000020000000000000005 /* KeyboardShortcutManager.swift */,
+				A10000020000000000000006 /* SettingsManager.swift */,
+				A10000020000000000000012 /* LaunchAtLoginManager.swift */,
+				A10000020000000000000008 /* Assets.xcassets */,
+				A10000040000000000000001 /* Info.plist */,
+				A10000040000000000000002 /* PanicLock.entitlements */,
+			);
+			path = PanicLock;
+			sourceTree = "<group>";
+		};
+		A10000060000000000000003 /* PanicLockHelper */ = {
+			isa = PBXGroup;
+			children = (
+				A10000020000000000000009 /* HelperMain.swift */,
+				A10000020000000000000010 /* HelperTool.swift */,
+				A10000040000000000000003 /* Info-Helper.plist */,
+				A10000040000000000000004 /* Helper.entitlements */,
+				A10000040000000000000005 /* Launchd.plist */,
+			);
+			path = PanicLockHelper;
+			sourceTree = "<group>";
+		};
+		A10000060000000000000004 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A10000020000000000000007 /* XPCProtocol.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		A10000060000000000000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000030000000000000001 /* PanicLock.app */,
+				A10000030000000000000002 /* com.paniclock.helper */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A10000070000000000000001 /* PanicLock */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000090000000000000001 /* Build configuration list for PBXNativeTarget "PanicLock" */;
+			buildPhases = (
+				A10000080000000000000001 /* Sources */,
+				A10000050000000000000001 /* Frameworks */,
+				A10000080000000000000003 /* Resources */,
+				A10000080000000000000004 /* Copy Helper */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000100000000000000001 /* PBXTargetDependency */,
+			);
+			name = PanicLock;
+			productName = PanicLock;
+			productReference = A10000030000000000000001 /* PanicLock.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A10000070000000000000002 /* PanicLockHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000090000000000000002 /* Build configuration list for PBXNativeTarget "PanicLockHelper" */;
+			buildPhases = (
+				A10000080000000000000002 /* Sources */,
+				A10000050000000000000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PanicLockHelper;
+			productName = PanicLockHelper;
+			productReference = A10000030000000000000002 /* com.paniclock.helper */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A10000070000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					A10000070000000000000002 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A10000090000000000000003 /* Build configuration list for PBXProject "PanicLock" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000060000000000000001;
+			productRefGroup = A10000060000000000000005 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000070000000000000001 /* PanicLock */,
+				A10000070000000000000002 /* PanicLockHelper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000080000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000008 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A10000080000000000000004 /* Copy Helper */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(DSTROOT)/UninstalledProducts/$(PLATFORM_NAME)/com.paniclock.helper",
+			);
+			name = "Copy Helper";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/Library/LaunchServices/com.paniclock.helper",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "HELPER_PATH=\"${DSTROOT}/UninstalledProducts/${PLATFORM_NAME}/com.paniclock.helper\"\nif [ ! -f \"$HELPER_PATH\" ]; then\n  HELPER_PATH=\"${BUILT_PRODUCTS_DIR}/com.paniclock.helper\"\nfi\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchServices\"\ncp \"$HELPER_PATH\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchServices/\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000080000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000001 /* PanicLockApp.swift in Sources */,
+				A10000010000000000000002 /* MenuBarController.swift in Sources */,
+				A10000010000000000000003 /* PanicLockManager.swift in Sources */,
+				A10000010000000000000004 /* PreferencesView.swift in Sources */,
+				A10000010000000000000005 /* KeyboardShortcutManager.swift in Sources */,
+				A10000010000000000000006 /* SettingsManager.swift in Sources */,
+				A10000010000000000000007 /* XPCProtocol.swift in Sources */,
+				A10000010000000000000012 /* LaunchAtLoginManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000080000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000009 /* HelperMain.swift in Sources */,
+				A10000010000000000000010 /* HelperTool.swift in Sources */,
+				A10000010000000000000011 /* XPCProtocol.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000100000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000070000000000000002 /* PanicLockHelper */;
+			targetProxy = A10000110000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A100000A0000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PanicLock/PanicLock.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UA5KMSP89;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PanicLock/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paniclock.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A100000A0000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PanicLock/PanicLock.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UA5KMSP89;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PanicLock/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.paniclock.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A100000A0000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PanicLockHelper/Helper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UA5KMSP89;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = "PanicLockHelper/Info-Helper.plist";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-sectcreate",
+					__TEXT,
+					__launchd_plist,
+					"$(SRCROOT)/PanicLockHelper/Launchd.plist",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.paniclock.helper;
+				PRODUCT_NAME = com.paniclock.helper;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A100000A0000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PanicLockHelper/Helper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UA5KMSP89;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = "PanicLockHelper/Info-Helper.plist";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-sectcreate",
+					__TEXT,
+					__launchd_plist,
+					"$(SRCROOT)/PanicLockHelper/Launchd.plist",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.paniclock.helper;
+				PRODUCT_NAME = com.paniclock.helper;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A100000A0000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A100000A0000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10000090000000000000001 /* Build configuration list for PBXNativeTarget "PanicLock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000A0000000000000001 /* Debug */,
+				A100000A0000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000090000000000000002 /* Build configuration list for PBXNativeTarget "PanicLockHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000A0000000000000003 /* Debug */,
+				A100000A0000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000090000000000000003 /* Build configuration list for PBXProject "PanicLock" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000A0000000000000005 /* Debug */,
+				A100000A0000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A10000000000000000000001 /* Project object */;
+}
