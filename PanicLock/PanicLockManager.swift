@@ -52,50 +52,14 @@ class PanicLockManager {
     }
     
     private func installHelper() {
-        // Use SMJobBless to install the privileged helper
-        var authRef: AuthorizationRef?
-        let authFlags: AuthorizationFlags = [.interactionAllowed, .preAuthorize, .extendRights]
+        // Use SMAppService to install the privileged helper (macOS 13+)
+        let service = SMAppService.daemon(plistName: "com.paniclock.helper.plist")
         
-        let authItemName = kSMRightBlessPrivilegedHelper
-        
-        var authItem = authItemName.withCString { name in
-            AuthorizationItem(
-                name: name,
-                valueLength: 0,
-                value: nil,
-                flags: 0
-            )
-        }
-        
-        var authRights = withUnsafeMutablePointer(to: &authItem) { pointer in
-            AuthorizationRights(count: 1, items: pointer)
-        }
-        
-        let status = AuthorizationCreate(&authRights, nil, authFlags, &authRef)
-        
-        guard status == errAuthorizationSuccess, let auth = authRef else {
-            print("Authorization failed: \(status)")
-            return
-        }
-        
-        defer {
-            AuthorizationFree(auth, [])
-        }
-        
-        var error: Unmanaged<CFError>?
-        let success = SMJobBless(
-            kSMDomainSystemLaunchd,
-            helperBundleIdentifier as CFString,
-            auth,
-            &error
-        )
-        
-        if !success {
-            if let err = error?.takeRetainedValue() {
-                print("Helper installation failed: \(err)")
-            }
-        } else {
+        do {
+            try service.register()
             print("Helper installed successfully")
+        } catch {
+            print("Helper installation failed: \(error)")
         }
     }
     
