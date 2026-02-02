@@ -188,21 +188,18 @@ class HelperTool: NSObject, NSXPCListenerDelegate, PanicLockHelperProtocol {
     // MARK: - Private Methods
     
     private func parseTouchIDTimeout(from output: String) -> Int? {
-        // Look for pattern like "Biometric timeout (in seconds): 1800"
-        let patterns = [
-            "Biometric timeout \\(in seconds\\):\\s*(\\d+)",
-            "Touch ID timeout:\\s*(\\d+)",
-            "timeout[:\\s]+(\\d+)"
-        ]
-        
-        for pattern in patterns {
-            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
-               let match = regex.firstMatch(in: output, options: [], range: NSRange(output.startIndex..., in: output)),
-               let range = Range(match.range(at: 1), in: output) {
-                return Int(output[range])
+        // bioutil -r -s outputs:
+        //     Biometric timeout (in seconds): 1800
+        for line in output.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("Biometric timeout") {
+                let parts = trimmed.components(separatedBy: ":")
+                if let value = parts.last?.trimmingCharacters(in: .whitespaces),
+                   let timeout = Int(value) {
+                    return timeout
+                }
             }
         }
-        
         return nil
     }
     
