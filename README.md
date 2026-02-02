@@ -55,6 +55,15 @@ PanicLock uses a privileged helper (installed via SMJobBless) to modify Touch ID
 3. Locks screen via `pmset displaysleepnow`
 4. Restores original timeout after ~2 seconds
 
+## Security
+
+- **Minimal privileges** — Helper only runs 3 hardcoded commands (`bioutil`, `pmset`)
+- **No command injection** — Timeout parameter is a Swift `Int`, not a string
+- **Code-signed XPC** — Helper verifies connecting app's bundle ID + team ID + certificate
+- **No network activity** — App is 100% offline, no telemetry or analytics
+- **No data collection** — Only stores preferences (icon style, keyboard shortcut)
+- **Open source** — Full code available for audit
+
 ## License
 
 MIT License — See [LICENSE](LICENSE) for details.

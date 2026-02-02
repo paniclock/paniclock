@@ -35,17 +35,22 @@ class MenuBarController: NSObject {
         
         let iconStyle = SettingsManager.shared.iconStyle
         let symbolName: String
+        let pointSize: CGFloat
         
         switch iconStyle {
         case .lock:
             symbolName = "lock.fill"
+            pointSize = 16
         case .lockShield:
             symbolName = "lock.shield.fill"
+            pointSize = 16
         case .handRaised:
             symbolName = "hand.raised.fill"
+            pointSize = 14  // Smaller to prevent clipping (taller icon)
         }
         
-        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "PanicLock") {
+        let config = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .medium)
+        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "PanicLock")?.withSymbolConfiguration(config) {
             image.isTemplate = true
             button.image = image
         }
