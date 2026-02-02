@@ -19,7 +19,6 @@ jobs:
 
       - name: Build
         run: |
-          cd PanicLock
           xcodebuild -project PanicLock.xcodeproj \
             -scheme PanicLock \
             -configuration Debug \
