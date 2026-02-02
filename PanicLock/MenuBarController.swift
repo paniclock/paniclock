@@ -4,6 +4,7 @@ import SwiftUI
 class MenuBarController: NSObject {
     private var statusItem: NSStatusItem!
     private var preferencesWindow: NSWindow?
+    private var aboutWindow: NSWindow?
     
     override init() {
         super.init()
@@ -106,7 +107,21 @@ class MenuBarController: NSObject {
     }
     
     @objc private func showAbout() {
-        NSApp.orderFrontStandardAboutPanel(nil)
+        if aboutWindow == nil {
+            let aboutView = AboutView()
+            aboutWindow = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 300, height: 340),
+                styleMask: [.titled, .closable],
+                backing: .buffered,
+                defer: false
+            )
+            aboutWindow?.title = "About PanicLock"
+            aboutWindow?.contentView = NSHostingView(rootView: aboutView)
+            aboutWindow?.center()
+            aboutWindow?.isReleasedWhenClosed = false
+        }
+        
+        aboutWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
     

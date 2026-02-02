@@ -50,6 +50,10 @@ class SettingsManager: ObservableObject {
     }
     
     private init() {
+        // Register defaults so new users get launchAtLogin = true
+        defaults.register(defaults: [
+            Keys.launchAtLogin: true
+        ])
         loadSettings()
     }
     
@@ -76,7 +80,7 @@ class SettingsManager: ObservableObject {
     func resetToDefaults() {
         keyboardShortcut = nil
         iconStyle = .lock
-        launchAtLogin = false
+        launchAtLogin = true
         confirmationSound = false
     }
 }

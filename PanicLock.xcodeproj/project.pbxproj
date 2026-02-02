@@ -19,6 +19,7 @@
 		A10000010000000000000010 /* HelperTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000010 /* HelperTool.swift */; };
 		A10000010000000000000011 /* XPCProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000007 /* XPCProtocol.swift */; };
 		A10000010000000000000012 /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000012 /* LaunchAtLoginManager.swift */; };
+		A10000010000000000000013 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000013 /* AboutView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		A10000020000000000000009 /* HelperMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperMain.swift; sourceTree = "<group>"; };
 		A10000020000000000000010 /* HelperTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTool.swift; sourceTree = "<group>"; };
 		A10000020000000000000012 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
+		A10000020000000000000013 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		A10000030000000000000001 /* PanicLock.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PanicLock.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000030000000000000002 /* com.paniclock.helper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = com.paniclock.helper; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000040000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 				A10000020000000000000005 /* KeyboardShortcutManager.swift */,
 				A10000020000000000000006 /* SettingsManager.swift */,
 				A10000020000000000000012 /* LaunchAtLoginManager.swift */,
+				A10000020000000000000013 /* AboutView.swift */,
 				A10000020000000000000008 /* Assets.xcassets */,
 				A10000040000000000000001 /* Info.plist */,
 				A10000040000000000000002 /* PanicLock.entitlements */,
@@ -248,6 +251,7 @@
 				A10000010000000000000006 /* SettingsManager.swift in Sources */,
 				A10000010000000000000007 /* XPCProtocol.swift in Sources */,
 				A10000010000000000000012 /* LaunchAtLoginManager.swift in Sources */,
+				A10000010000000000000013 /* AboutView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
