@@ -48,12 +48,12 @@ rm -rf /Applications/PanicLock.app
 
 ## How It Works
 
-PanicLock uses a privileged helper (installed via SMJobBless) to modify Touch ID timeout settings:
+PanicLock uses a privileged helper (installed via SMJobBless) to modify Touch ID unlock settings:
 
 1. Reads current timeout via `bioutil -r -s`
-2. Sets timeout to 1 second via `bioutil -w -s -o 1`
+2. Disables Touch ID unlock via `bioutil -w -s -u 0`
 3. Locks screen via `pmset displaysleepnow`
-4. Restores original timeout after ~2 seconds
+4. Restores original setting after ~2 seconds
 
 ## Security
 
