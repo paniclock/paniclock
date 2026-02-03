@@ -1,15 +1,22 @@
 #!/bin/bash
 set -e
 
-VERSION="1.0.0"
 APP_NAME="PanicLock"
 SCHEME="PanicLock"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD_DIR="$PROJECT_DIR/build/release"
-DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 STATE_FILE="$BUILD_DIR/.release-state"
+KEYCHAIN_PROFILE="notarytool-profile"
 
 cd "$PROJECT_DIR"
+
+# Extract version from Xcode project
+VERSION=$(xcodebuild -project PanicLock.xcodeproj -scheme "$SCHEME" -showBuildSettings 2>/dev/null | grep "MARKETING_VERSION" | head -1 | awk '{print $3}')
+if [ -z "$VERSION" ]; then
+    echo "ERROR: Could not extract version from Xcode project"
+    exit 1
+fi
+DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 
 # Show help
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
@@ -34,14 +41,17 @@ fi
 
 save_state() {
     mkdir -p "$BUILD_DIR"
+    # Use existing BUILD_DATE if available, otherwise create new one
+    local build_date="${BUILD_DATE:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
+    local git_commit="${GIT_COMMIT:-$(git rev-parse HEAD)}"
     cat > "$STATE_FILE" << EOF
 PHASE=$1
 APP_SUBMISSION_ID=$2
 APP_CDHASH=$3
 DMG_SUBMISSION_ID=$4
 DMG_CDHASH=$5
-BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-GIT_COMMIT=$(git rev-parse HEAD)
+BUILD_DATE=$build_date
+GIT_COMMIT=$git_commit
 EOF
 }
 
@@ -69,13 +79,28 @@ get_dmg_cdhash() {
 
 check_notarization_status() {
     local submission_id="$1"
-    xcrun notarytool info "$submission_id" --keychain-profile "notarytool-profile" 2>&1 | grep "status:" | head -1 | awk '{print $2}'
+    xcrun notarytool info "$submission_id" --keychain-profile "$KEYCHAIN_PROFILE" 2>&1 | grep "status:" | head -1 | awk '{print $2}'
 }
 
 submit_for_notarization() {
     local file="$1"
-    local output=$(xcrun notarytool submit "$file" --keychain-profile "notarytool-profile" 2>&1 | tee /dev/tty)
+    local output=$(xcrun notarytool submit "$file" --keychain-profile "$KEYCHAIN_PROFILE" 2>&1 | tee /dev/tty)
     echo "$output" | grep "id:" | head -1 | awk '{print $2}'
+}
+
+create_dmg() {
+    echo "=== Creating DMG ==="
+    rm -rf "$BUILD_DIR/dmg"
+    mkdir -p "$BUILD_DIR/dmg"
+    cp -R "$BUILD_DIR/${APP_NAME}.app" "$BUILD_DIR/dmg/"
+    ln -s /Applications "$BUILD_DIR/dmg/Applications"
+
+    hdiutil create -volname "$APP_NAME" \
+        -srcfolder "$BUILD_DIR/dmg" \
+        -ov -format UDZO \
+        "$BUILD_DIR/$DMG_NAME"
+
+    rm -rf "$BUILD_DIR/dmg"
 }
 
 # =============================================================================
@@ -118,18 +143,7 @@ handle_app_notarization_pending() {
         rm -rf "$BUILD_DIR/${APP_NAME}.xcarchive"
         
         echo ""
-        echo "=== Creating DMG ==="
-        rm -rf "$BUILD_DIR/dmg"
-        mkdir -p "$BUILD_DIR/dmg"
-        cp -R "$BUILD_DIR/${APP_NAME}.app" "$BUILD_DIR/dmg/"
-        ln -s /Applications "$BUILD_DIR/dmg/Applications"
-
-        hdiutil create -volname "$APP_NAME" \
-            -srcfolder "$BUILD_DIR/dmg" \
-            -ov -format UDZO \
-            "$BUILD_DIR/$DMG_NAME"
-
-        rm -rf "$BUILD_DIR/dmg"
+        create_dmg
         
         echo ""
         echo "=== Submitting DMG for Notarization ==="
@@ -162,20 +176,20 @@ handle_app_notarization_pending() {
         echo "Apple is still processing. This can take minutes to hours."
         echo "Run this script again later to check status."
         echo ""
-        xcrun notarytool info "$APP_SUBMISSION_ID" --keychain-profile "notarytool-profile"
+        xcrun notarytool info "$APP_SUBMISSION_ID" --keychain-profile "$KEYCHAIN_PROFILE"
         exit 0
         
     elif [ "$status" = "Invalid" ]; then
         echo "App notarization REJECTED"
         echo ""
-        xcrun notarytool log "$APP_SUBMISSION_ID" --keychain-profile "notarytool-profile"
+        xcrun notarytool log "$APP_SUBMISSION_ID" --keychain-profile "$KEYCHAIN_PROFILE"
         echo ""
         echo "Fix the issues, delete $STATE_FILE, and run again."
         exit 1
         
     else
         echo "Unexpected status: $status"
-        xcrun notarytool info "$APP_SUBMISSION_ID" --keychain-profile "notarytool-profile"
+        xcrun notarytool info "$APP_SUBMISSION_ID" --keychain-profile "$KEYCHAIN_PROFILE"
         exit 1
     fi
 }
@@ -227,8 +241,12 @@ handle_dmg_notarization_pending() {
         echo "  DMG: $BUILD_DIR/$DMG_NAME"
         echo ""
         echo "  To publish on GitHub:"
-        echo "    git tag v${VERSION}"
-        echo "    git push origin v${VERSION}"
+        if git tag -l "v${VERSION}" | grep -q "v${VERSION}"; then
+            echo "    (Tag v${VERSION} already exists)"
+        else
+            echo "    git tag v${VERSION}"
+            echo "    git push origin v${VERSION}"
+        fi
         echo "    gh release create v${VERSION} '$BUILD_DIR/$DMG_NAME' \\"
         echo "      --title 'v${VERSION}' --notes-file CHANGELOG.md"
         echo ""
@@ -240,13 +258,13 @@ handle_dmg_notarization_pending() {
         echo "Apple is still processing. This can take minutes to hours."
         echo "Run this script again later to check status."
         echo ""
-        xcrun notarytool info "$DMG_SUBMISSION_ID" --keychain-profile "notarytool-profile"
+        xcrun notarytool info "$DMG_SUBMISSION_ID" --keychain-profile "$KEYCHAIN_PROFILE"
         exit 0
         
     elif [ "$status" = "Invalid" ]; then
         echo "DMG notarization REJECTED"
         echo ""
-        xcrun notarytool log "$DMG_SUBMISSION_ID" --keychain-profile "notarytool-profile"
+        xcrun notarytool log "$DMG_SUBMISSION_ID" --keychain-profile "$KEYCHAIN_PROFILE"
         echo ""
         echo "This is unusual for a DMG containing a notarized app."
         echo "Check the logs above for details."
@@ -254,7 +272,7 @@ handle_dmg_notarization_pending() {
         
     else
         echo "Unexpected status: $status"
-        xcrun notarytool info "$DMG_SUBMISSION_ID" --keychain-profile "notarytool-profile"
+        xcrun notarytool info "$DMG_SUBMISSION_ID" --keychain-profile "$KEYCHAIN_PROFILE"
         exit 1
     fi
 }
@@ -368,6 +386,8 @@ if load_state 2>/dev/null; then
             exit 1
             ;;
     esac
+    # Phase handlers always exit, so we should never reach here
+    exit 0
 fi
 
 # Check if we have an existing app that might already be notarized
@@ -428,18 +448,7 @@ if [ -d "$BUILD_DIR/${APP_NAME}.app" ]; then
             echo "No DMG found. Creating DMG..."
             echo ""
             
-            echo "=== Creating DMG ==="
-            rm -rf "$BUILD_DIR/dmg"
-            mkdir -p "$BUILD_DIR/dmg"
-            cp -R "$BUILD_DIR/${APP_NAME}.app" "$BUILD_DIR/dmg/"
-            ln -s /Applications "$BUILD_DIR/dmg/Applications"
-
-            hdiutil create -volname "$APP_NAME" \
-                -srcfolder "$BUILD_DIR/dmg" \
-                -ov -format UDZO \
-                "$BUILD_DIR/$DMG_NAME"
-
-            rm -rf "$BUILD_DIR/dmg"
+            create_dmg
             
             echo ""
             echo "=== Submitting DMG for Notarization ==="
