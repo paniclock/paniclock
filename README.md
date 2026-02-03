@@ -64,6 +64,27 @@ PanicLock uses a privileged helper (installed via SMJobBless) to modify Touch ID
 - **No data collection** — Only stores preferences (icon style, keyboard shortcut)
 - **Open source** — Full code available for audit
 
+## Releasing
+
+The release script handles building, signing, notarizing, and packaging:
+
+```bash
+./scripts/release.sh
+```
+
+**Features:**
+- Extracts version from Xcode project automatically
+- Signs with Developer ID for distribution outside the App Store
+- Submits to Apple for notarization (can take minutes to hours)
+- Creates a notarized DMG for distribution
+- Supports parallel notarizations — each version gets its own `build/release/<version>/` directory
+
+**Workflow:**
+1. Bump `MARKETING_VERSION` in Xcode
+2. Run `./scripts/release.sh` — builds and submits for notarization
+3. Run again later to check status and continue when approved
+4. Final output: `build/release/<version>/PanicLock-<version>.dmg`
+
 ## License
 
 MIT License — See [LICENSE](LICENSE) for details.
