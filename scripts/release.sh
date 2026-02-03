@@ -39,6 +39,7 @@ PHASE=$1
 APP_SUBMISSION_ID=$2
 APP_CDHASH=$3
 DMG_SUBMISSION_ID=$4
+DMG_CDHASH=$5
 BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 GIT_COMMIT=$(git rev-parse HEAD)
 EOF
@@ -56,6 +57,13 @@ load_state() {
 get_app_cdhash() {
     if [ -d "$BUILD_DIR/${APP_NAME}.app" ]; then
         codesign -dvvv "$BUILD_DIR/${APP_NAME}.app" 2>&1 | grep "CDHash=" | head -1 | cut -d= -f2
+    fi
+}
+
+get_dmg_cdhash() {
+    if [ -f "$BUILD_DIR/$DMG_NAME" ]; then
+        # For DMGs, we use a SHA-256 hash since they're not code-signed
+        shasum -a 256 "$BUILD_DIR/$DMG_NAME" | cut -d' ' -f1
     fi
 }
 
@@ -125,6 +133,9 @@ handle_app_notarization_pending() {
         
         echo ""
         echo "=== Submitting DMG for Notarization ==="
+        local dmg_cdhash=$(get_dmg_cdhash)
+        echo "DMG SHA-256: $dmg_cdhash"
+        
         local dmg_submission_id=$(submit_for_notarization "$BUILD_DIR/$DMG_NAME")
         
         if [ -z "$dmg_submission_id" ]; then
@@ -132,7 +143,7 @@ handle_app_notarization_pending() {
             exit 1
         fi
         
-        save_state "dmg_submitted" "$APP_SUBMISSION_ID" "$APP_CDHASH" "$dmg_submission_id"
+        save_state "dmg_submitted" "$APP_SUBMISSION_ID" "$APP_CDHASH" "$dmg_submission_id" "$dmg_cdhash"
         
         echo ""
         echo "=============================================="
@@ -173,12 +184,24 @@ handle_dmg_notarization_pending() {
     echo "=== Phase 3: DMG Notarization Pending ==="
     echo ""
     echo "  Submission ID: $DMG_SUBMISSION_ID"
+    echo "  DMG SHA-256: $DMG_CDHASH"
     echo "  Submitted: $BUILD_DATE"
     echo ""
     
     # Verify DMG exists
     if [ ! -f "$BUILD_DIR/$DMG_NAME" ]; then
         echo "ERROR: DMG not found at $BUILD_DIR/$DMG_NAME"
+        echo "Delete $STATE_FILE and run again to start fresh."
+        exit 1
+    fi
+    
+    # Verify DMG hasn't changed
+    local current_dmg_hash=$(get_dmg_cdhash)
+    if [ -n "$DMG_CDHASH" ] && [ "$current_dmg_hash" != "$DMG_CDHASH" ]; then
+        echo "ERROR: DMG has changed since submission!"
+        echo "  Expected: $DMG_CDHASH"
+        echo "  Found: $current_dmg_hash"
+        echo ""
         echo "Delete $STATE_FILE and run again to start fresh."
         exit 1
     fi
@@ -285,7 +308,7 @@ do_fresh_build() {
         exit 1
     fi
     
-    save_state "app_submitted" "$submission_id" "$app_cdhash" ""
+    save_state "app_submitted" "$submission_id" "$app_cdhash" "" ""
     
     echo ""
     echo "=============================================="
@@ -388,7 +411,8 @@ if [ -d "$BUILD_DIR/${APP_NAME}.app" ]; then
                     exit 1
                 fi
                 
-                save_state "dmg_submitted" "" "$local_cdhash" "$dmg_submission_id"
+                local dmg_hash=$(get_dmg_cdhash)
+                save_state "dmg_submitted" "" "$local_cdhash" "$dmg_submission_id" "$dmg_hash"
                 
                 echo ""
                 echo "=============================================="
@@ -426,7 +450,8 @@ if [ -d "$BUILD_DIR/${APP_NAME}.app" ]; then
                 exit 1
             fi
             
-            save_state "dmg_submitted" "" "$local_cdhash" "$dmg_submission_id"
+            local dmg_hash=$(get_dmg_cdhash)
+            save_state "dmg_submitted" "" "$local_cdhash" "$dmg_submission_id" "$dmg_hash"
             
             echo ""
             echo "=============================================="
