@@ -11,40 +11,31 @@ STATE_FILE="$BUILD_DIR/.release-state"
 
 cd "$PROJECT_DIR"
 
-# Parse command line arguments
-ACTION="build"  # default action
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --status)
-            ACTION="status"
-            shift
-            ;;
-        --resume)
-            ACTION="resume"
-            shift
-            ;;
-        --help|-h)
-            echo "Usage: $0 [OPTIONS]"
-            echo ""
-            echo "Options:"
-            echo "  (no args)   Build, sign, notarize, and create DMG"
-            echo "  --status    Check notarization status of pending submission"
-            echo "  --resume    Resume after notarization completes (staple + create DMG)"
-            echo "  --help      Show this help message"
-            exit 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-done
+# Show help
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    echo "Usage: $0"
+    echo ""
+    echo "Builds, signs, notarizes, and creates a DMG for release."
+    echo ""
+    echo "The script automatically detects the current state and"
+    echo "continues from where it left off:"
+    echo ""
+    echo "  1. No build exists      -> Builds and submits for notarization"
+    echo "  2. Notarization pending -> Shows status (run again later)"
+    echo "  3. Notarization accepted -> Staples and creates DMG"
+    echo ""
+    exit 0
+fi
 
 # Function to save state
 save_state() {
-    echo "SUBMISSION_ID=$1" > "$STATE_FILE"
-    echo "APP_HASH=$2" >> "$STATE_FILE"
-    echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$STATE_FILE"
+    mkdir -p "$BUILD_DIR"
+    cat > "$STATE_FILE" << EOF
+SUBMISSION_ID=$1
+APP_CDHASH=$2
+BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+GIT_COMMIT=$(git rev-parse HEAD)
+EOF
 }
 
 # Function to load state
@@ -57,63 +48,15 @@ load_state() {
     fi
 }
 
-# Handle --status
-if [ "$ACTION" = "status" ]; then
-    if ! load_state; then
-        echo "No pending release found. Run without arguments to start a new build."
-        exit 1
+# Function to get cdhash of local app
+get_local_cdhash() {
+    if [ -d "$BUILD_DIR/${APP_NAME}.app" ]; then
+        codesign -dvvv "$BUILD_DIR/${APP_NAME}.app" 2>&1 | grep "CDHash=" | head -1 | cut -d= -f2
     fi
-    echo "=== Checking notarization status ==="
-    echo "Submission ID: $SUBMISSION_ID"
-    echo "Build date: $BUILD_DATE"
-    echo ""
-    xcrun notarytool info "$SUBMISSION_ID" --keychain-profile "notarytool-profile"
-    exit 0
-fi
+}
 
-# Handle --resume
-if [ "$ACTION" = "resume" ]; then
-    if ! load_state; then
-        echo "No pending release found. Run without arguments to start a new build."
-        exit 1
-    fi
-    
-    echo "=== Resuming release ==="
-    echo "Submission ID: $SUBMISSION_ID"
-    
-    # Check if notarization is complete
-    STATUS=$(xcrun notarytool info "$SUBMISSION_ID" --keychain-profile "notarytool-profile" 2>&1 | grep "status:" | head -1 | awk '{print $2}')
-    
-    if [ "$STATUS" = "In" ]; then
-        echo ""
-        echo "Notarization still in progress. Check back later with: $0 --status"
-        exit 1
-    elif [ "$STATUS" != "Accepted" ]; then
-        echo ""
-        echo "Notarization failed with status: $STATUS"
-        echo "Check logs with: xcrun notarytool log $SUBMISSION_ID --keychain-profile notarytool-profile"
-        exit 1
-    fi
-    
-    echo "Notarization accepted!"
-    
-    # Verify the app still exists
-    if [ ! -d "$BUILD_DIR/${APP_NAME}.app" ]; then
-        echo "ERROR: App not found at $BUILD_DIR/${APP_NAME}.app"
-        echo "The build artifacts may have been deleted. Run without arguments to rebuild."
-        exit 1
-    fi
-    
-    echo "=== Stapling ==="
-    xcrun stapler staple "$BUILD_DIR/${APP_NAME}.app"
-    
-    # Clean up the zip now that we've stapled
-    rm -f "$BUILD_DIR/${APP_NAME}.zip"
-    
-    # Continue to DMG creation
-    NOTARIZE_DMG=true
-    
-    # Jump to DMG creation (uses the existing app)
+# Function to create DMG and finish release
+finish_release() {
     echo "=== Creating DMG ==="
     rm -rf "$BUILD_DIR/dmg"
     mkdir -p "$BUILD_DIR/dmg"
@@ -127,54 +70,187 @@ if [ "$ACTION" = "resume" ]; then
 
     rm -rf "$BUILD_DIR/dmg"
 
-    if [ "$NOTARIZE_DMG" = true ]; then
-        echo "=== Notarizing DMG ==="
-        xcrun notarytool submit "$BUILD_DIR/$DMG_NAME" \
-            --keychain-profile "notarytool-profile" \
-            --wait
+    echo "=== Notarizing DMG ==="
+    xcrun notarytool submit "$BUILD_DIR/$DMG_NAME" \
+        --keychain-profile "notarytool-profile" \
+        --wait
 
-        xcrun stapler staple "$BUILD_DIR/$DMG_NAME"
-    fi
+    xcrun stapler staple "$BUILD_DIR/$DMG_NAME"
     
-    # Clean up state file on success
     rm -f "$STATE_FILE"
+    rm -f "$BUILD_DIR/${APP_NAME}.zip"
 
     echo ""
-    echo "=== Done! ==="
+    echo "=== Release Complete! ==="
     echo "DMG: $BUILD_DIR/$DMG_NAME"
     echo ""
-    echo "To create a GitHub release:"
+    echo "To publish on GitHub:"
     echo "  git tag v${VERSION}"
     echo "  git push origin v${VERSION}"
     echo "  gh release create v${VERSION} '$BUILD_DIR/$DMG_NAME' --title 'v${VERSION}' --notes-file CHANGELOG.md"
-    exit 0
+}
+
+# =============================================================================
+# MAIN LOGIC - Detect state and take appropriate action
+# =============================================================================
+
+echo "=== PanicLock Release Script ==="
+echo ""
+
+# Check for local app
+LOCAL_CDHASH=$(get_local_cdhash)
+HAS_LOCAL_APP=false
+if [ -n "$LOCAL_CDHASH" ]; then
+    HAS_LOCAL_APP=true
 fi
 
-# === Full build flow ===
-
-# Check for existing pending notarization
+# Load saved state
+HAS_STATE=false
 if load_state 2>/dev/null; then
-    echo "WARNING: A previous build is pending notarization."
-    echo "  Submission ID: $SUBMISSION_ID"
-    echo "  Build date: $BUILD_DATE"
+    HAS_STATE=true
+fi
+
+# If we have a local app and state, check notarization status
+if [ "$HAS_LOCAL_APP" = true ] && [ "$HAS_STATE" = true ]; then
+    echo "Found pending release:"
+    echo "  App: $BUILD_DIR/${APP_NAME}.app"
+    echo "  CDHash: $LOCAL_CDHASH"
+    echo "  Submission: $SUBMISSION_ID"
+    echo "  Submitted: $BUILD_DATE"
     echo ""
-    echo "Options:"
-    echo "  1. Run '$0 --status' to check notarization status"
-    echo "  2. Run '$0 --resume' to continue after notarization completes"
-    echo "  3. Delete $STATE_FILE and run again to start fresh (loses pending notarization)"
+    
+    # Verify the local app matches what we submitted
+    if [ "$LOCAL_CDHASH" != "$APP_CDHASH" ]; then
+        echo "WARNING: Local app CDHash doesn't match submitted build!"
+        echo "  Expected: $APP_CDHASH"
+        echo "  Found: $LOCAL_CDHASH"
+        echo ""
+        echo "The build artifacts may have been modified."
+        read -p "Start a fresh build? [Y/n] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            exit 1
+        fi
+        # Fall through to fresh build below
+        HAS_LOCAL_APP=false
+        HAS_STATE=false
+    else
+        # Check notarization status
+        echo "Checking notarization status..."
+        STATUS=$(xcrun notarytool info "$SUBMISSION_ID" --keychain-profile "notarytool-profile" 2>&1 | grep "status:" | head -1 | awk '{print $2}')
+        
+        if [ "$STATUS" = "Accepted" ]; then
+            echo "Notarization ACCEPTED!"
+            echo ""
+            echo "=== Stapling ==="
+            xcrun stapler staple "$BUILD_DIR/${APP_NAME}.app"
+            
+            finish_release
+            exit 0
+            
+        elif [ "$STATUS" = "In" ]; then
+            echo "Notarization still In Progress"
+            echo ""
+            echo "Apple is still processing. This can take minutes to hours."
+            echo "Run this script again later to check status."
+            echo ""
+            xcrun notarytool info "$SUBMISSION_ID" --keychain-profile "notarytool-profile"
+            exit 0
+            
+        elif [ "$STATUS" = "Invalid" ]; then
+            echo "Notarization REJECTED"
+            echo ""
+            echo "Fetching rejection details..."
+            xcrun notarytool log "$SUBMISSION_ID" --keychain-profile "notarytool-profile"
+            echo ""
+            echo "Fix the issues and run this script again to rebuild."
+            rm -f "$STATE_FILE"
+            exit 1
+            
+        else
+            echo "Notarization status: $STATUS"
+            echo ""
+            xcrun notarytool info "$SUBMISSION_ID" --keychain-profile "notarytool-profile"
+            exit 1
+        fi
+    fi
+
+# If we have a local app but no state, check if it's already notarized
+elif [ "$HAS_LOCAL_APP" = true ]; then
+    echo "Found app without submission state:"
+    echo "  App: $BUILD_DIR/${APP_NAME}.app"
+    echo "  CDHash: $LOCAL_CDHASH"
     echo ""
-    read -p "Start a new build anyway? This will abandon the pending notarization. [y/N] " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
+    echo "Checking if Apple has a notarization ticket..."
+    
+    if xcrun stapler staple "$BUILD_DIR/${APP_NAME}.app" 2>&1; then
+        echo ""
+        echo "App is already notarized!"
+        
+        # Check if DMG already exists
+        if [ -f "$BUILD_DIR/$DMG_NAME" ]; then
+            echo "DMG already exists: $BUILD_DIR/$DMG_NAME"
+            echo ""
+            read -p "Recreate DMG? [y/N] " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                echo ""
+                echo "Release ready at: $BUILD_DIR/$DMG_NAME"
+                exit 0
+            fi
+        fi
+        
+        finish_release
+        exit 0
+    else
+        echo "No notarization ticket found."
+        echo ""
+        read -p "Submit this app for notarization? [Y/n] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Nn]$ ]]; then
+            exit 1
+        fi
+        
+        # Zip and submit
+        echo "=== Zipping app for notarization ==="
+        ditto -c -k --keepParent "$BUILD_DIR/${APP_NAME}.app" "$BUILD_DIR/${APP_NAME}.zip"
+        
+        echo "=== Submitting for Notarization ==="
+        SUBMIT_OUTPUT=$(xcrun notarytool submit "$BUILD_DIR/${APP_NAME}.zip" \
+            --keychain-profile "notarytool-profile" 2>&1 | tee /dev/tty)
+        
+        SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep "id:" | head -1 | awk '{print $2}')
+        
+        if [ -z "$SUBMISSION_ID" ]; then
+            echo "ERROR: Failed to get submission ID"
+            exit 1
+        fi
+        
+        save_state "$SUBMISSION_ID" "$LOCAL_CDHASH"
+        
+        echo ""
+        echo "=============================================="
+        echo "  Notarization submitted!"
+        echo "  Submission ID: $SUBMISSION_ID"
+        echo ""
+        echo "  Run this script again to check status."
+        echo "=============================================="
+        exit 0
     fi
 fi
 
-echo "=== Building ${APP_NAME} v${VERSION} ==="
+# =============================================================================
+# No local app - do a fresh build
+# =============================================================================
+
+echo "No existing build found. Starting fresh build..."
+echo ""
 
 # Clean build directory
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
+
+echo "=== Building ${APP_NAME} v${VERSION} ==="
 
 # Build archive
 xcodebuild -project PanicLock.xcodeproj \
@@ -195,17 +271,11 @@ if security find-identity -v -p codesigning | grep -q "Developer ID Application"
     echo "=== Zipping app for notarization ==="
     ditto -c -k --keepParent "$BUILD_DIR/${APP_NAME}.app" "$BUILD_DIR/${APP_NAME}.zip"
 
-    # Get the cdhash for tracking
-    APP_HASH=$(codesign -dvvv "$BUILD_DIR/${APP_NAME}.app" 2>&1 | grep "CDHash=" | head -1 | cut -d= -f2)
+    APP_CDHASH=$(codesign -dvvv "$BUILD_DIR/${APP_NAME}.app" 2>&1 | grep "CDHash=" | head -1 | cut -d= -f2)
+    echo "App CDHash: $APP_CDHASH"
 
     echo "=== Submitting for Notarization ==="
-    echo "This may take several minutes to hours. You can:"
-    echo "  - Wait here for completion"
-    echo "  - Press Ctrl+C and run '$0 --status' later to check"
-    echo "  - Run '$0 --resume' after notarization completes"
-    echo ""
     
-    # Submit and capture the submission ID
     SUBMIT_OUTPUT=$(xcrun notarytool submit "$BUILD_DIR/${APP_NAME}.zip" \
         --keychain-profile "notarytool-profile" 2>&1 | tee /dev/tty)
     
@@ -216,34 +286,23 @@ if security find-identity -v -p codesigning | grep -q "Developer ID Application"
         exit 1
     fi
     
-    # Save state immediately after submission
-    save_state "$SUBMISSION_ID" "$APP_HASH"
+    save_state "$SUBMISSION_ID" "$APP_CDHASH"
+    
     echo ""
-    echo "Saved release state. Submission ID: $SUBMISSION_ID"
+    echo "=============================================="
+    echo "  Notarization submitted!"
+    echo "=============================================="
+    echo ""
+    echo "  Submission ID: $SUBMISSION_ID"
+    echo "  CDHash: $APP_CDHASH"
+    echo ""
+    echo "  Apple typically takes a few minutes to several"
+    echo "  hours to process notarization requests."
+    echo ""
+    echo "  Run this script again to check status and"
+    echo "  complete the release."
+    echo "=============================================="
     
-    # Now wait for completion
-    echo "=== Waiting for Notarization ==="
-    xcrun notarytool wait "$SUBMISSION_ID" --keychain-profile "notarytool-profile"
-    
-    # Check result
-    STATUS=$(xcrun notarytool info "$SUBMISSION_ID" --keychain-profile "notarytool-profile" 2>&1 | grep "status:" | head -1 | awk '{print $2}')
-    
-    if [ "$STATUS" != "Accepted" ]; then
-        echo ""
-        echo "Notarization failed with status: $STATUS"
-        echo "Check logs with: xcrun notarytool log $SUBMISSION_ID --keychain-profile notarytool-profile"
-        echo ""
-        echo "State saved. After fixing issues, rebuild with: $0"
-        exit 1
-    fi
-
-    echo "=== Stapling ==="
-    xcrun stapler staple "$BUILD_DIR/${APP_NAME}.app"
-    
-    # Clean up zip after successful staple
-    rm -f "$BUILD_DIR/${APP_NAME}.zip"
-    
-    NOTARIZE_DMG=true
 else
     echo "=== No Developer ID certificate found ==="
     echo "Extracting app from archive with development signature..."
@@ -255,40 +314,19 @@ else
     echo "Users will need to right-click > Open to bypass Gatekeeper."
     echo ""
     
-    NOTARIZE_DMG=false
+    echo "=== Creating DMG ==="
+    mkdir -p "$BUILD_DIR/dmg"
+    cp -R "$BUILD_DIR/${APP_NAME}.app" "$BUILD_DIR/dmg/"
+    ln -s /Applications "$BUILD_DIR/dmg/Applications"
+
+    hdiutil create -volname "$APP_NAME" \
+        -srcfolder "$BUILD_DIR/dmg" \
+        -ov -format UDZO \
+        "$BUILD_DIR/$DMG_NAME"
+
+    rm -rf "$BUILD_DIR/dmg"
+
+    echo ""
+    echo "=== Done (unsigned) ==="
+    echo "DMG: $BUILD_DIR/$DMG_NAME"
 fi
-
-echo "=== Creating DMG ==="
-mkdir -p "$BUILD_DIR/dmg"
-cp -R "$BUILD_DIR/${APP_NAME}.app" "$BUILD_DIR/dmg/"
-ln -s /Applications "$BUILD_DIR/dmg/Applications"
-
-hdiutil create -volname "$APP_NAME" \
-    -srcfolder "$BUILD_DIR/dmg" \
-    -ov -format UDZO \
-    "$BUILD_DIR/$DMG_NAME"
-
-# Clean up temp folder
-rm -rf "$BUILD_DIR/dmg"
-
-# Notarize the DMG if Developer ID is available
-if [ "$NOTARIZE_DMG" = true ]; then
-    echo "=== Notarizing DMG ==="
-    xcrun notarytool submit "$BUILD_DIR/$DMG_NAME" \
-        --keychain-profile "notarytool-profile" \
-        --wait
-
-    xcrun stapler staple "$BUILD_DIR/$DMG_NAME"
-fi
-
-# Clean up state file on success
-rm -f "$STATE_FILE"
-
-echo ""
-echo "=== Done! ==="
-echo "DMG: $BUILD_DIR/$DMG_NAME"
-echo ""
-echo "To create a GitHub release:"
-echo "  git tag v${VERSION}"
-echo "  git push origin v${VERSION}"
-echo "  gh release create v${VERSION} '$BUILD_DIR/$DMG_NAME' --title 'v${VERSION}' --notes-file CHANGELOG.md"
