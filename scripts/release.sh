@@ -4,8 +4,6 @@ set -e
 APP_NAME="PanicLock"
 SCHEME="PanicLock"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-BUILD_DIR="$PROJECT_DIR/build/release"
-STATE_FILE="$BUILD_DIR/.release-state"
 KEYCHAIN_PROFILE="notarytool-profile"
 
 cd "$PROJECT_DIR"
@@ -16,6 +14,10 @@ if [ -z "$VERSION" ]; then
     echo "ERROR: Could not extract version from Xcode project"
     exit 1
 fi
+
+# Version-specific build directory (allows parallel notarizations)
+BUILD_DIR="$PROJECT_DIR/build/release/$VERSION"
+STATE_FILE="$BUILD_DIR/.release-state"
 DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 
 # Show help
