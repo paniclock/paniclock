@@ -46,7 +46,7 @@ if security find-identity -v -p codesigning | grep -q "Developer ID Application"
     # Clean up zip
     rm "$BUILD_DIR/${APP_NAME}.zip"
     
-    NOTARIZE_DMG=false
+    NOTARIZE_DMG=true
 else
     echo "=== No Developer ID certificate found ==="
     echo "Extracting app from archive with development signature..."
