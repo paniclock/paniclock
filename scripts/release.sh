@@ -356,24 +356,8 @@ echo ""
 if load_state 2>/dev/null; then
     echo "Found existing release in progress..."
     echo "  Phase: $PHASE"
-    echo "  Git commit: $GIT_COMMIT"
+    echo "  Build started: $BUILD_DATE"
     echo ""
-    
-    # Check if code has changed
-    current_commit=$(git rev-parse HEAD)
-    if [ "$current_commit" != "$GIT_COMMIT" ]; then
-        echo "WARNING: Code has changed since build started!"
-        echo "  Build commit: $GIT_COMMIT"
-        echo "  Current commit: $current_commit"
-        echo ""
-        read -p "Continue with existing build anyway? [y/N] " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo ""
-            echo "To start fresh, delete $STATE_FILE and run again."
-            exit 1
-        fi
-    fi
     
     case "$PHASE" in
         app_submitted)
