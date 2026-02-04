@@ -2,9 +2,9 @@ import Foundation
 import Combine
 
 enum IconStyle: String, Codable, CaseIterable {
+    case logo = "logo"
     case lock = "lock"
-    case lockShield = "lockShield"
-    case handRaised = "handRaised"
+    case shield = "shield"
 }
 
 class SettingsManager: ObservableObject {
@@ -31,7 +31,7 @@ class SettingsManager: ObservableObject {
         }
     }
     
-    @Published var iconStyle: IconStyle = .lockShield {
+    @Published var iconStyle: IconStyle = .shield {
         didSet {
             defaults.set(iconStyle.rawValue, forKey: Keys.iconStyle)
         }
@@ -79,7 +79,7 @@ class SettingsManager: ObservableObject {
     
     func resetToDefaults() {
         keyboardShortcut = nil
-        iconStyle = .lockShield
+        iconStyle = .shield
         launchAtLogin = true
         confirmationSound = false
     }

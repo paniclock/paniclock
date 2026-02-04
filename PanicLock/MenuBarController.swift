@@ -34,25 +34,35 @@ class MenuBarController: NSObject {
         guard let button = statusItem.button else { return }
         
         let iconStyle = SettingsManager.shared.iconStyle
-        let symbolName: String
-        let pointSize: CGFloat
         
-        switch iconStyle {
-        case .lock:
-            symbolName = "lock.fill"
-            pointSize = 16
-        case .lockShield:
-            symbolName = "lock.shield.fill"
-            pointSize = 16
-        case .handRaised:
-            symbolName = "hand.raised.fill"
-            pointSize = 14  // Smaller to prevent clipping (taller icon)
-        }
-        
-        let config = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .medium)
-        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "PanicLock")?.withSymbolConfiguration(config) {
-            image.isTemplate = true
-            button.image = image
+        // Use custom asset for the logo icon
+        if iconStyle == .logo {
+            if let image = NSImage(named: "StatusIcon") {
+                image.size = NSSize(width: 18, height: 18)  // Standard menu bar size
+                button.image = image
+            }
+        } else {
+            // Use SF Symbols for other icon options
+            let symbolName: String
+            let pointSize: CGFloat
+            
+            switch iconStyle {
+            case .lock:
+                symbolName = "lock.fill"
+                pointSize = 16
+            case .shield:
+                symbolName = "lock.shield.fill"
+                pointSize = 16
+            case .logo:
+                return  // Already handled above
+            }
+            
+            let config = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .medium)
+            if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "PanicLock")?.withSymbolConfiguration(config) {
+                image.isTemplate = true
+                image.size = NSSize(width: 18, height: 18)  // Constrain to menu bar size
+                button.image = image
+            }
         }
     }
     

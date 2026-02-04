@@ -30,8 +30,8 @@ struct PreferencesView: View {
             Section("Appearance") {
                 Picker("Menu Bar Icon:", selection: $settings.iconStyle) {
                     Text("Lock").tag(IconStyle.lock)
-                    Text("Lock Shield").tag(IconStyle.lockShield)
-                    Text("Hand Raised").tag(IconStyle.handRaised)
+                    Text("Logo").tag(IconStyle.logo)
+                    Text("Shield").tag(IconStyle.shield)
                 }
                 .pickerStyle(.segmented)
                 .onChange(of: settings.iconStyle) { _, _ in
