@@ -44,23 +44,20 @@ class MenuBarController: NSObject {
         } else {
             // Use SF Symbols for other icon options
             let symbolName: String
-            let pointSize: CGFloat
             
             switch iconStyle {
             case .lock:
                 symbolName = "lock.fill"
-                pointSize = 16
             case .shield:
                 symbolName = "lock.shield.fill"
-                pointSize = 16
             case .logo:
                 return  // Already handled above
             }
             
-            let config = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .medium)
+            // Use 14pt and let SF Symbols size naturally for menu bar
+            let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
             if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "PanicLock")?.withSymbolConfiguration(config) {
                 image.isTemplate = true
-                image.size = NSSize(width: 18, height: 18)  // Constrain to menu bar size
                 button.image = image
             }
         }
