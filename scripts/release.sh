@@ -18,7 +18,7 @@ fi
 # Version-specific build directory (allows parallel notarizations)
 BUILD_DIR="$PROJECT_DIR/build/release/$VERSION"
 STATE_FILE="$BUILD_DIR/.release-state"
-DMG_NAME="${APP_NAME}-${VERSION}.dmg"
+DMG_NAME="${APP_NAME}.dmg"
 
 # Show help
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then

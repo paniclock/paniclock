@@ -10,6 +10,7 @@ class PanicLockManager {
     private let defaultTimeout: Int = 172800 // 48 hours - Apple's default
     private var cachedTimeout: Int?
     private var xpcConnection: NSXPCConnection?
+    private let connectionLock = NSLock()
     
     private init() {}
     
@@ -20,10 +21,11 @@ class PanicLockManager {
         let installedHelperURL = URL(fileURLWithPath: "/Library/PrivilegedHelperTools/\(helperBundleIdentifier)")
         
         if FileManager.default.fileExists(atPath: installedHelperURL.path) {
-            // Helper exists, verify it's running by pinging it
-            pingHelper { isRunning in
+            // Helper exists, verify it's running by pinging it with retries
+            // launchd may still be starting the helper after boot
+            pingHelperWithRetry(attempts: 3, delay: 1.0) { isRunning in
                 if !isRunning {
-                    print("Helper exists but not responding, reinstalling...")
+                    print("Helper exists but not responding after retries, reinstalling...")
                     self.installHelper()
                 } else {
                     print("Helper is installed and running")
@@ -48,6 +50,27 @@ class PanicLockManager {
         
         helper.ping { success in
             completion(success)
+        }
+    }
+    
+    private func pingHelperWithRetry(attempts: Int, delay: TimeInterval, completion: @escaping (Bool) -> Void) {
+        pingHelper { isRunning in
+            if isRunning {
+                completion(true)
+            } else if attempts > 1 {
+                // Clear stale connection before retry
+                self.connectionLock.lock()
+                self.xpcConnection?.invalidate()
+                self.xpcConnection = nil
+                self.connectionLock.unlock()
+                
+                print("Helper not responding, retrying in \(delay)s... (\(attempts - 1) attempts left)")
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    self.pingHelperWithRetry(attempts: attempts - 1, delay: delay, completion: completion)
+                }
+            } else {
+                completion(false)
+            }
         }
     }
     
@@ -104,7 +127,10 @@ class PanicLockManager {
     // MARK: - XPC Connection
     
     private func getXPCConnection() -> NSXPCConnection {
-        if let connection = xpcConnection, connection.invalidationHandler != nil {
+        connectionLock.lock()
+        defer { connectionLock.unlock() }
+        
+        if let connection = xpcConnection {
             return connection
         }
         
@@ -112,17 +138,66 @@ class PanicLockManager {
         connection.remoteObjectInterface = NSXPCInterface(with: PanicLockHelperProtocol.self)
         
         connection.invalidationHandler = { [weak self] in
+            self?.connectionLock.lock()
             self?.xpcConnection = nil
+            self?.connectionLock.unlock()
+            print("XPC connection invalidated")
         }
         
         connection.interruptionHandler = { [weak self] in
+            // Interruption means helper crashed but launchd will restart it
+            // Clear connection so next call creates a fresh one
+            self?.connectionLock.lock()
             self?.xpcConnection = nil
+            self?.connectionLock.unlock()
+            print("XPC connection interrupted - helper may have restarted")
         }
         
         connection.resume()
         xpcConnection = connection
         
         return connection
+    }
+    
+    private func executeWithRetry<T>(
+        maxRetries: Int = 3,
+        retryDelay: TimeInterval = 1.0,
+        operation: @escaping (PanicLockHelperProtocol, @escaping (T) -> Void) -> Void,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        var attempts = 0
+        
+        func attempt() {
+            attempts += 1
+            let connection = getXPCConnection()
+            
+            guard let helper = connection.remoteObjectProxyWithErrorHandler({ error in
+                print("XPC error (attempt \(attempts)): \(error)")
+                if attempts < maxRetries {
+                    // Clear connection and retry after delay
+                    self.connectionLock.lock()
+                    self.xpcConnection?.invalidate()
+                    self.xpcConnection = nil
+                    self.connectionLock.unlock()
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + retryDelay) {
+                        attempt()
+                    }
+                } else {
+                    completion(.failure(error))
+                }
+            }) as? PanicLockHelperProtocol else {
+                let error = NSError(domain: "PanicLock", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get helper proxy"])
+                completion(.failure(error))
+                return
+            }
+            
+            operation(helper) { result in
+                completion(.success(result))
+            }
+        }
+        
+        attempt()
     }
     
     // MARK: - Panic Lock Execution
@@ -136,24 +211,29 @@ class PanicLockManager {
             AudioServicesPlaySystemSound(SystemSoundID(1004)) // Funk sound
         }
         
-        let connection = getXPCConnection()
-        
-        guard let helper = connection.remoteObjectProxyWithErrorHandler({ error in
-            print("XPC error: \(error)")
-            // Fallback: just lock screen without disabling Touch ID
-            self.lockScreenOnly()
-        }) as? PanicLockHelperProtocol else {
-            lockScreenOnly()
-            return
-        }
-        
-        helper.executePanicSequence { success, error in
-            if !success {
-                print("Panic sequence failed: \(error ?? "Unknown error")")
-            } else {
-                print("Panic sequence completed successfully")
+        executeWithRetry(
+            maxRetries: 3,
+            retryDelay: 0.5,
+            operation: { helper, completion in
+                helper.executePanicSequence { success, error in
+                    completion((success, error))
+                }
+            },
+            completion: { [weak self] (result: Result<(Bool, String?), Error>) in
+                switch result {
+                case .success(let (success, error)):
+                    if !success {
+                        print("Panic sequence failed: \(error ?? "Unknown error")")
+                    } else {
+                        print("Panic sequence completed successfully")
+                    }
+                case .failure(let error):
+                    print("XPC failed after retries: \(error)")
+                    // Fallback: just lock screen without disabling Touch ID
+                    self?.lockScreenOnly()
+                }
             }
-        }
+        )
     }
     
     private func ensureImmediateLock() {
