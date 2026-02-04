@@ -31,7 +31,7 @@ class SettingsManager: ObservableObject {
         }
     }
     
-    @Published var iconStyle: IconStyle = .lock {
+    @Published var iconStyle: IconStyle = .lockShield {
         didSet {
             defaults.set(iconStyle.rawValue, forKey: Keys.iconStyle)
         }
@@ -79,7 +79,7 @@ class SettingsManager: ObservableObject {
     
     func resetToDefaults() {
         keyboardShortcut = nil
-        iconStyle = .lock
+        iconStyle = .lockShield
         launchAtLogin = true
         confirmationSound = false
     }
