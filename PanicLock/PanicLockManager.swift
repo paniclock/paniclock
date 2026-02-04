@@ -128,6 +128,9 @@ class PanicLockManager {
     // MARK: - Panic Lock Execution
     
     func executePanicLock() {
+        // Ensure screen lock is set to immediate (one-time, persists)
+        ensureImmediateLock()
+        
         // Play confirmation sound if enabled
         if SettingsManager.shared.confirmationSound {
             AudioServicesPlaySystemSound(SystemSoundID(1004)) // Funk sound
@@ -150,6 +153,63 @@ class PanicLockManager {
             } else {
                 print("Panic sequence completed successfully")
             }
+        }
+    }
+    
+    private func ensureImmediateLock() {
+        // Check current screen lock delay setting
+        let statusTask = Process()
+        statusTask.executableURL = URL(fileURLWithPath: "/usr/sbin/sysadminctl")
+        statusTask.arguments = ["-screenLock", "status"]
+        
+        let statusPipe = Pipe()
+        statusTask.standardOutput = statusPipe
+        statusTask.standardError = statusPipe
+        
+        do {
+            try statusTask.run()
+            statusTask.waitUntilExit()
+            
+            let data = statusPipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: data, encoding: .utf8) ?? ""
+            
+            // If already set to immediate, no action needed
+            if output.contains("immediate") {
+                print("Screen lock already set to immediate")
+                return
+            }
+            
+            print("Setting screen lock to immediate")
+            
+        } catch {
+            print("Failed to check screen lock status: \(error)")
+        }
+        
+        // Set screen lock to immediate using empty password (works for current user)
+        let setTask = Process()
+        setTask.executableURL = URL(fileURLWithPath: "/usr/sbin/sysadminctl")
+        setTask.arguments = ["-screenLock", "immediate", "-password", "-"]
+        
+        // Provide empty password via stdin
+        let inputPipe = Pipe()
+        setTask.standardInput = inputPipe
+        setTask.standardOutput = FileHandle.nullDevice
+        setTask.standardError = FileHandle.nullDevice
+        
+        do {
+            try setTask.run()
+            // Write empty string and close to simulate: echo "" | sysadminctl ...
+            inputPipe.fileHandleForWriting.write("\n".data(using: .utf8)!)
+            inputPipe.fileHandleForWriting.closeFile()
+            setTask.waitUntilExit()
+            
+            if setTask.terminationStatus == 0 {
+                print("Screen lock set to immediate successfully")
+            } else {
+                print("sysadminctl exited with status \(setTask.terminationStatus)")
+            }
+        } catch {
+            print("Failed to set screen lock: \(error)")
         }
     }
     
