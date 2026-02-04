@@ -63,57 +63,24 @@ echo "=== Removing application ==="
 if [ -d "/Applications/${APP_NAME}.app" ]; then
     echo "Removing /Applications/${APP_NAME}.app..."
     rm -rf "/Applications/${APP_NAME}.app"
+    # Note: SMAppService login item is automatically removed when app is deleted
 else
     echo "App not in /Applications."
 fi
 
-# Also check user Applications folder
-if [ -d "$HOME/Applications/${APP_NAME}.app" ]; then
-    echo "Removing ~/Applications/${APP_NAME}.app..."
-    rm -rf "$HOME/Applications/${APP_NAME}.app"
-fi
-
 echo ""
-echo "=== Removing login item ==="
+echo "=== Removing preferences ==="
 
-# Remove from login items
-osascript -e "tell application \"System Events\" to delete login item \"${APP_NAME}\"" 2>/dev/null && echo "Removed from login items." || echo "Not in login items."
-
-echo ""
-echo "=== Removing preferences and caches ==="
-
-# Remove preferences
+# Remove preferences plist
 if [ -f "$HOME/Library/Preferences/${BUNDLE_ID}.plist" ]; then
     echo "Removing preferences..."
     rm -f "$HOME/Library/Preferences/${BUNDLE_ID}.plist"
+else
+    echo "No preferences file found."
 fi
 
-# Remove from defaults
-defaults delete "${BUNDLE_ID}" 2>/dev/null || true
-
-# Remove caches
-if [ -d "$HOME/Library/Caches/${BUNDLE_ID}" ]; then
-    echo "Removing caches..."
-    rm -rf "$HOME/Library/Caches/${BUNDLE_ID}"
-fi
-
-# Remove Application Support
-if [ -d "$HOME/Library/Application Support/${BUNDLE_ID}" ]; then
-    echo "Removing Application Support..."
-    rm -rf "$HOME/Library/Application Support/${BUNDLE_ID}"
-fi
-
-# Remove saved state
-if [ -d "$HOME/Library/Saved Application State/${BUNDLE_ID}.savedState" ]; then
-    echo "Removing saved state..."
-    rm -rf "$HOME/Library/Saved Application State/${BUNDLE_ID}.savedState"
-fi
-
-# Remove containers (sandboxed apps)
-if [ -d "$HOME/Library/Containers/${BUNDLE_ID}" ]; then
-    echo "Removing containers..."
-    rm -rf "$HOME/Library/Containers/${BUNDLE_ID}"
-fi
+# Clear from defaults cache
+defaults delete "${BUNDLE_ID}" 2>/dev/null && echo "Cleared defaults cache." || true
 
 echo ""
 echo "=== Verifying uninstall ==="
