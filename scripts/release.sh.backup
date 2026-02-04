@@ -103,10 +103,6 @@ create_dmg() {
         "$BUILD_DIR/$DMG_NAME"
 
     rm -rf "$BUILD_DIR/dmg"
-    
-    echo "=== Signing DMG ==="
-    codesign --force --sign "Developer ID Application" "$BUILD_DIR/$DMG_NAME"
-    echo "DMG signed."
 }
 
 # =============================================================================
@@ -141,14 +137,6 @@ handle_app_notarization_pending() {
         
         echo "=== Stapling App ==="
         xcrun stapler staple "$BUILD_DIR/${APP_NAME}.app"
-        
-        # Verify stapling succeeded
-        if ! codesign -dvvv "$BUILD_DIR/${APP_NAME}.app" 2>&1 | grep -q "Notarization Ticket=stapled"; then
-            echo "ERROR: App stapling failed! The app inside the DMG would not work offline."
-            echo "Try running: xcrun stapler staple '$BUILD_DIR/${APP_NAME}.app'"
-            exit 1
-        fi
-        echo "App stapling verified."
         
         # Clean up app zip
         rm -f "$BUILD_DIR/${APP_NAME}.zip"
@@ -295,19 +283,6 @@ do_fresh_build() {
     echo "=== Phase 1: Building ${APP_NAME} v${VERSION} ==="
     echo ""
     
-    # Check if git tag already exists before building
-    if git tag -l "v${VERSION}" | grep -q "v${VERSION}"; then
-        echo "WARNING: Git tag v${VERSION} already exists!"
-        echo "If re-releasing, delete it first:"
-        echo "  git tag -d v${VERSION} && git push origin :refs/tags/v${VERSION}"
-        echo ""
-        read -p "Continue anyway? [y/N] " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            exit 1
-        fi
-    fi
-    
     # Clean build directory
     rm -rf "$BUILD_DIR"
     mkdir -p "$BUILD_DIR"
@@ -442,7 +417,7 @@ if [ -d "$BUILD_DIR/${APP_NAME}.app" ]; then
                     exit 1
                 fi
                 
-                dmg_hash=$(get_dmg_cdhash)
+                local dmg_hash=$(get_dmg_cdhash)
                 save_state "dmg_submitted" "" "$local_cdhash" "$dmg_submission_id" "$dmg_hash"
                 
                 echo ""
@@ -470,7 +445,7 @@ if [ -d "$BUILD_DIR/${APP_NAME}.app" ]; then
                 exit 1
             fi
             
-            dmg_hash=$(get_dmg_cdhash)
+            local dmg_hash=$(get_dmg_cdhash)
             save_state "dmg_submitted" "" "$local_cdhash" "$dmg_submission_id" "$dmg_hash"
             
             echo ""
