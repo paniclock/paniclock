@@ -1,10 +1,8 @@
-# PanicLock
-
 <p align="center">
   <img src="assets/paniclock-logo-and-name-v1.png" alt="PanicLock" width="400">
 </p>
 
-A macOS menu bar utility that instantly disables Touch ID and locks the screen with a single click.
+PanicLock is macOS menu bar utility that instantly disables Touch ID and locks the screen with a single click.
 
 ## Features
 
