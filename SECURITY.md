@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please email the maintainer directly rather than using public issues. paniclock.evacuee596[AT]passmail[dot]net
+If you discover a security vulnerability, please click the ["Report a vulnerability"](https://github.com/paniclock/paniclock/security/advisories/new) button to open the advisory form.
 
 
 ## Security Model
