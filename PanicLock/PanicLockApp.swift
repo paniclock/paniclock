@@ -44,6 +44,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         KeyboardShortcutManager.shared.removeGlobalShortcut()
+        powerMonitor.stop()
+        screenUnlockObserver.stop()
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
