@@ -4,7 +4,7 @@
 
 PanicLock is macOS menu bar utility that instantly disables Touch ID and locks the screen with a single click or closing your laptop lid. 
 
-PanicLock fills a gap macOS leaves open: there is no built-in way to instantly disable Touch ID when it matters. Biometrics are convenient day-to-day, and sometimes preferable when you need speed or want to avoid your password being observed. But in sensitive situations, law enforcement and border agents in many countries can compel a biometric unlock in ways they cannot with a password. PanicLock gives you a one-click menu bar button, a customizable hotkey, or an automatic lock-on-lid-close option that immediately disables Touch ID and locks your screen, restoring password-only protection without killing your session or shutting down..
+PanicLock fills a gap macOS leaves open: there is no built-in way to instantly disable Touch ID when it matters. Biometrics are convenient day-to-day, and sometimes preferable when you need speed or want to avoid your password being observed. But in sensitive situations, law enforcement and border agents in many countries can compel a biometric unlock in ways they cannot with a password. PanicLock gives you a one-click menu bar button, a customizable hotkey, or an automatic lock-on-lid-close option that immediately disables Touch ID and locks your screen, restoring password-only protection without killing your session or shutting down.
 
 <p align="center">
   <a href="https://github.com/paniclock/paniclock/releases/latest/download/PanicLock.dmg">
