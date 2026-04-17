@@ -9,6 +9,7 @@ class PanicLockManager {
     private let helperBundleIdentifier = "com.paniclock.helper"
     private let defaultTimeout: Int = 172800 // 48 hours - Apple's default
     private var cachedTimeout: Int?
+    private var savedTimeout: Int?
     private var xpcConnection: NSXPCConnection?
     private let connectionLock = NSLock()
     
@@ -304,6 +305,82 @@ class PanicLockManager {
         } catch {
             print("Failed to lock screen: \(error)")
         }
+    }
+    
+    // MARK: - Lock on Close
+    
+    func disableTouchID(completion: @escaping (Bool) -> Void) {
+        executeWithRetry(
+            maxRetries: 2,
+            retryDelay: 0.5,
+            operation: { helper, completion in
+                helper.readTouchIDTimeout { timeout, error in
+                    completion((timeout, error))
+                }
+            },
+            completion: { [weak self] (result: Result<(Int, String?), Error>) in
+                guard let self else {
+                    completion(false)
+                    return
+                }
+                
+                let currentTimeout: Int
+                switch result {
+                case .success(let (timeout, _)):
+                    currentTimeout = timeout > 0 ? timeout : PanicLockDefaults.defaultTimeout
+                case .failure:
+                    currentTimeout = PanicLockDefaults.defaultTimeout
+                }
+                savedTimeout = currentTimeout
+                
+                executeWithRetry(
+                    maxRetries: 2,
+                    retryDelay: 0.5,
+                    operation: { helper, completion in
+                        helper.setTouchIDTimeout(PanicLockDefaults.minimumTimeout) { success, error in
+                            completion((success, error))
+                        }
+                    },
+                    completion: { (result: Result<(Bool, String?), Error>) in
+                        switch result {
+                        case .success(let (success, error)):
+                            if !success {
+                                print("Failed to disable Touch ID: \(error ?? "Unknown error")")
+                            }
+                            completion(success)
+                        case .failure(let error):
+                            print("XPC failed disabling Touch ID: \(error)")
+                            completion(false)
+                        }
+                    }
+                )
+            }
+        )
+    }
+    
+    func restoreTouchID() {
+        let timeout = savedTimeout ?? PanicLockDefaults.defaultTimeout
+        savedTimeout = nil
+        
+        executeWithRetry(
+            maxRetries: 2,
+            retryDelay: 0.5,
+            operation: { helper, completion in
+                helper.setTouchIDTimeout(timeout) { success, error in
+                    completion((success, error))
+                }
+            },
+            completion: { (result: Result<(Bool, String?), Error>) in
+                switch result {
+                case .success(let (success, error)):
+                    if !success {
+                        print("Failed to restore Touch ID timeout: \(error ?? "Unknown error")")
+                    }
+                case .failure(let error):
+                    print("XPC failed restoring Touch ID: \(error)")
+                }
+            }
+        )
     }
     
     // MARK: - Uninstall App

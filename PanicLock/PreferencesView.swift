@@ -44,8 +44,10 @@ struct PreferencesView: View {
                     .onChange(of: settings.launchAtLogin) { _, newValue in
                         LaunchAtLoginManager.shared.setLaunchAtLogin(enabled: newValue)
                     }
-                
+
                 Toggle("Play Confirmation Sound", isOn: $settings.confirmationSound)
+
+                Toggle("Lock on Close", isOn: $settings.lockOnClose)
             }
             
             Section("About") {

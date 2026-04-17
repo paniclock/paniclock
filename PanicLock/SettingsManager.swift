@@ -17,6 +17,7 @@ class SettingsManager: ObservableObject {
         static let iconStyle = "iconStyle"
         static let launchAtLogin = "launchAtLogin"
         static let confirmationSound = "confirmationSound"
+        static let lockOnClose = "lockOnClose"
     }
     
     @Published var keyboardShortcut: SavedKeyboardShortcut? {
@@ -48,7 +49,13 @@ class SettingsManager: ObservableObject {
             defaults.set(confirmationSound, forKey: Keys.confirmationSound)
         }
     }
-    
+
+    @Published var lockOnClose: Bool = false {
+        didSet {
+            defaults.set(lockOnClose, forKey: Keys.lockOnClose)
+        }
+    }
+
     private init() {
         // Register defaults so new users get launchAtLogin = true
         defaults.register(defaults: [
@@ -75,12 +82,16 @@ class SettingsManager: ObservableObject {
         
         // Load confirmation sound
         confirmationSound = defaults.bool(forKey: Keys.confirmationSound)
+
+        // Load lock on close
+        lockOnClose = defaults.bool(forKey: Keys.lockOnClose)
     }
-    
+
     func resetToDefaults() {
         keyboardShortcut = nil
         iconStyle = .shield
         launchAtLogin = true
         confirmationSound = false
+        lockOnClose = false
     }
 }
