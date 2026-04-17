@@ -97,10 +97,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func handleStateChange(_ state: LockState) {
         switch state {
         case .locking:
-            PanicLockManager.shared.executePanicLock()
-            stateMachine.completeLocking()
-            acknowledgePendingSleep()
+            PanicLockManager.shared.disableTouchID { [weak self] success in
+                guard let self else { return }
+                if !success {
+                    print("Failed to disable Touch ID before sleep")
+                }
+                stateMachine.completeLocking()
+                acknowledgePendingSleep()
+            }
         case .unlocking:
+            PanicLockManager.shared.restoreTouchID()
             stateMachine.completeUnlocking()
         case .idle, .waitingForUnlock, .locked:
             break
