@@ -13,6 +13,7 @@ PanicLock is macOS menu bar utility that instantly disables Touch ID and locks t
 ## Features
 
 - **One-click panic lock** — Click the menu bar icon or press a hotkey to instantly lock
+- **Lock on Close** — Optionally lock and disable Touch ID when you close the lid
 - **Temporarily disables Touch ID** — Forces password-only unlock
 - **Auto-restore** — Original Touch ID settings restored after unlock
 - **Keyboard shortcut** — Configure a global hotkey (e.g., ⌃⌥⌘L)
@@ -29,6 +30,10 @@ PanicLock is macOS menu bar utility that instantly disables Touch ID and locks t
 |--------|--------|
 | **Left-click** icon | Trigger panic lock immediately |
 | **Right-click** icon | Open menu (Preferences, Uninstall, Quit) |
+
+### Lock on Close
+
+When enabled in Preferences, closing your Mac's lid will automatically disable Touch ID and lock your screen. Touch ID stays disabled until you re-login with your password. If your screen locks for other reasons (screensaver, display sleep, etc.), Touch ID will still work as normal.
 
 ### First Launch
 
