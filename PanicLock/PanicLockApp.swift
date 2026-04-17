@@ -85,6 +85,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         stateMachine.$state
             .removeDuplicates()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] newState in
                 self?.handleStateChange(newState)
             }
@@ -98,12 +99,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         switch state {
         case .locking:
             PanicLockManager.shared.disableTouchID { [weak self] success in
-                guard let self else { return }
-                if !success {
-                    print("Failed to disable Touch ID before sleep")
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.stateMachine.completeLocking()
+                    self.acknowledgePendingSleep()
                 }
-                stateMachine.completeLocking()
-                acknowledgePendingSleep()
             }
         case .unlocking:
             PanicLockManager.shared.restoreTouchID()
