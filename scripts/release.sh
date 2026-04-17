@@ -109,6 +109,50 @@ create_dmg() {
     echo "DMG signed."
 }
 
+update_homebrew_tap() {
+    local dmg_path="$1"
+    local tap_repo="paniclock/homebrew-tap"
+    local cask_path="Casks/p/paniclock.rb"
+    
+    echo "=== Updating Homebrew Tap ==="
+    
+    local sha=$(shasum -a 256 "$dmg_path" | cut -d' ' -f1)
+    
+    # Fetch current file from GitHub
+    local current_content
+    current_content=$(gh api "repos/${tap_repo}/contents/${cask_path}" --jq '.content' 2>/dev/null | base64 -d 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$current_content" ]; then
+        echo "WARNING: Could not fetch cask from ${tap_repo}. Skipping tap update."
+        echo "  Update manually: version \"${VERSION}\" / sha256 \"${sha}\""
+        return 1
+    fi
+    
+    # Get the file SHA (needed for GitHub API update)
+    local file_sha
+    file_sha=$(gh api "repos/${tap_repo}/contents/${cask_path}" --jq '.sha' 2>/dev/null)
+    
+    # Update version and sha256
+    local new_content
+    new_content=$(echo "$current_content" | \
+        sed -E "s/version \"[^\"]+\"/version \"${VERSION}\"/" | \
+        sed -E "s/sha256 \"[^\"]+\"/sha256 \"${sha}\"/")
+    
+    # Push update via GitHub API
+    local encoded
+    encoded=$(echo "$new_content" | base64)
+    
+    if gh api --method PUT "repos/${tap_repo}/contents/${cask_path}" \
+        -f message="paniclock ${VERSION}" \
+        -f content="${encoded}" \
+        -f sha="${file_sha}" > /dev/null 2>&1; then
+        echo "Homebrew tap updated to v${VERSION}"
+    else
+        echo "WARNING: Failed to update Homebrew tap."
+        echo "  Update manually: version \"${VERSION}\" / sha256 \"${sha}\""
+        return 1
+    fi
+}
+
 # =============================================================================
 # Phase Handlers
 # =============================================================================
@@ -246,6 +290,9 @@ handle_dmg_notarization_pending() {
         
         # Clean up state file
         rm -f "$STATE_FILE"
+        
+        # Update Homebrew tap
+        update_homebrew_tap "$BUILD_DIR/$DMG_NAME"
         
         echo ""
         echo "=============================================="

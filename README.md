@@ -21,6 +21,18 @@ PanicLock fills a gap macOS leaves open: there is no built-in way to instantly d
 - **Keyboard shortcut** — Configure a global hotkey (e.g., ⌃⌥⌘L)
 - **Launch at login** — Start automatically when you log in
 
+## Install
+
+### Homebrew
+
+```bash
+brew install paniclock/tap/paniclock
+```
+
+### Manual Download
+
+Download the latest DMG from the [releases page](https://github.com/paniclock/paniclock/releases/latest).
+
 ## Requirements
 
 - macOS 14.0 (Sonoma) or later
@@ -50,6 +62,11 @@ On first use, you'll be prompted for your admin password to install the privileg
 5. Build and run
 
 ## Uninstall
+
+**Homebrew:**
+```bash
+brew uninstall paniclock
+```
 
 **From the app:** Right-click → "Uninstall PanicLock..." → Enter admin password
 
