@@ -43,13 +43,15 @@ struct AboutView: View {
                 .padding(.horizontal, 40)
             
             // Website Link
-            Link(destination: URL(string: "https://paniclock.github.io/")!) {
-                HStack(spacing: 4) {
-                    Image(systemName: "globe")
-                    Text("paniclock.github.io")
+            if let url = URL(string: "https://paniclock.github.io/") {
+                Link(destination: url) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "globe")
+                        Text("paniclock.github.io")
+                    }
                 }
+                .font(.callout)
             }
-            .font(.callout)
             
             Spacer()
             
