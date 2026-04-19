@@ -58,7 +58,9 @@ struct PreferencesView: View {
                         .foregroundColor(.secondary)
                 }
                 
-                Link("View on GitHub", destination: URL(string: "https://github.com/paniclock/paniclock")!)
+                if let url = URL(string: "https://github.com/paniclock/paniclock") {
+                    Link("View on GitHub", destination: url)
+                }
             }
         }
         .formStyle(.grouped)
@@ -153,8 +155,8 @@ struct SavedKeyboardShortcut: Codable, Equatable {
             44: "/", 45: "N", 46: "M", 47: ".", 48: "⇥", 49: "Space",
             51: "⌫", 53: "⎋", 96: "F5", 97: "F6", 98: "F7", 99: "F3",
             100: "F8", 101: "F9", 103: "F11", 105: "F13", 107: "F14",
-            109: "F10", 111: "F12", 113: "F15", 118: "F4", 119: "F2",
-            120: "F1", 122: "F1", 123: "←", 124: "→", 125: "↓", 126: "↑"
+            109: "F10", 111: "F12", 113: "F15", 118: "F4",
+            120: "F2", 122: "F1", 123: "←", 124: "→", 125: "↓", 126: "↑"
         ]
         
         return keyCodeMap[keyCode] ?? "?"
