@@ -87,6 +87,8 @@ PanicLock uses a privileged helper (installed via SMJobBless) to modify Touch ID
 3. Locks screen via `pmset displaysleepnow`
 4. Restores original timeout after ~2 seconds
 
+PanicLock only disables Touch ID. If you have other unlock methods enabled — Apple Watch unlock, security keys, etc. — your Mac can still be unlocked using those.
+
 ## Security
 
 - **Minimal privileges** — Helper only runs 3 hardcoded commands (`bioutil`, `pmset`)
